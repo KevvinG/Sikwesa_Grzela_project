@@ -41,7 +41,7 @@
         android:inputType="textPersonName" />
 
     <Button
-        android:id="@+id/btn_signup"
+        android:id="@+id/btn_signin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
