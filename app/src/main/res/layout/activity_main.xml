@@ -19,7 +19,7 @@
         android:textStyle="bold" />
 
     <EditText
-        android:id="@+id/name_input"
+        android:id="@+id/edt_name_input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
@@ -30,7 +30,7 @@
         android:inputType="textPersonName" />
 
     <EditText
-        android:id="@+id/pass_input"
+        android:id="@+id/edt_pass_input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"

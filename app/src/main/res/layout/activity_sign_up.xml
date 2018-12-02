@@ -8,19 +8,28 @@
     tools:context=".SignUp"
     android:layout_marginTop="100dp">
 
+    <TextView
+        android:id="@+id/title_view"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="25dp"
+        android:text="Account Creation"
+        android:textAlignment="center"
+        android:textSize="24sp"
+        android:textStyle="bold" />
 
     <EditText
-        android:id="@+id/editText7"
+        android:id="@+id/edt_create_username"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:ems="10"
         android:inputType="textPersonName"
-        android:hint="Email"
+        android:hint="Username"
         android:layout_margin="8dp"/>
 
     <EditText
-        android:id="@+id/editText5"
+        android:id="@+id/edt_create_email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
@@ -30,7 +39,7 @@
         android:hint="Email" />
 
     <EditText
-        android:id="@+id/editText4"
+        android:id="@+id/edt_create_password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
@@ -40,7 +49,7 @@
         android:hint="Enter Password" />
 
     <EditText
-        android:id="@+id/editText6"
+        android:id="@+id/edt_confirm_password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
@@ -50,10 +59,18 @@
         android:hint="Confirm Password" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/btn_create_account"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="Sign Up"
+        android:text="Create Account"
+        android:layout_margin="15dp"/>
+
+    <Button
+        android:id="@+id/btn_cancel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Cancel"
         android:layout_margin="15dp"/>
 </LinearLayout>
