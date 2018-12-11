@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 
 import com.example.kevingrzela.sikwesa_grzela_project.Model.ChatPageAdapter;
 import com.example.kevingrzela.sikwesa_grzela_project.Model.Message;
@@ -15,14 +18,20 @@ public class ChatPageActivity extends Activity {
     //private ChatPagePracticeAdapter mMessageAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
+        Button btnSend;
+        EditText edtMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_page);
 
+        btnSend = findViewById(R.id.button_chatbox_send);
+        edtMessage = findViewById(R.id.edittext_chatbox);
         ArrayList<Message> messageList = new ArrayList<Message>();
 
+        /*Just a bunch of sample data
+        ArrayList<Message> messageList = new ArrayList<Message>();
         Message test1 = new Message("This is a test send", "10/15/11", "Bob", 1);
         Message test2 = new Message("This is a test rec", "12/21/22", "John", 2);
         Message test3 = new Message("This is another test rec", "12/11/22", "John", 2);
@@ -53,6 +62,19 @@ public class ChatPageActivity extends Activity {
         messageList.add(test13);
         messageList.add(test14);
         messageList.add(test15);
+        */
+
+        btnSend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String texting = edtMessage.getText().toString();
+
+
+            }
+        });
+
+
+
         ChatPageAdapter adapter;
 
             // set up the RecyclerView

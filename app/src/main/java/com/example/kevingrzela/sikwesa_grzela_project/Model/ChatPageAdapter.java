@@ -21,6 +21,8 @@ public class ChatPageAdapter extends RecyclerView.Adapter<ChatPageAdapter.ViewHo
     public static final int MESSAGE_SENT = 0;
     public static final int MESSAGE_RECEIVED = 1;
 
+
+
     // data is passed into the constructor
     public ChatPageAdapter(Context context, List<Message> data) {
         this.mInflater = LayoutInflater.from(context);
