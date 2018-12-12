@@ -2,24 +2,48 @@ package com.example.kevingrzela.sikwesa_grzela_project;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
+import com.example.kevingrzela.sikwesa_grzela_project.Model.ChatListAdapter;
 import com.example.kevingrzela.sikwesa_grzela_project.Model.ChatPageAdapter;
 import com.example.kevingrzela.sikwesa_grzela_project.Model.Message;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ChatPageActivity extends Activity {
     private RecyclerView mChatRecycler;
     //private ChatPagePracticeAdapter mMessageAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
-        Button btnSend;
-        EditText edtMessage;
+    private DatabaseReference mDatabase;
+    private FirebaseAuth mAuth;
+    DatabaseReference myRef;
+    ArrayList<Message> messageList;
+    FirebaseDatabase database;
+    ChatPageAdapter adapter;
+    RecyclerView recyclerView;
+    Button btnSend;
+    EditText edtMessage;
+    String userEmail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,61 +52,89 @@ public class ChatPageActivity extends Activity {
 
         btnSend = findViewById(R.id.button_chatbox_send);
         edtMessage = findViewById(R.id.edittext_chatbox);
-        ArrayList<Message> messageList = new ArrayList<Message>();
+        messageList = new ArrayList<Message>();
+        database = FirebaseDatabase.getInstance();
+        myRef = database.getReference("message");
 
-        /*Just a bunch of sample data
-        ArrayList<Message> messageList = new ArrayList<Message>();
-        Message test1 = new Message("This is a test send", "10/15/11", "Bob", 1);
-        Message test2 = new Message("This is a test rec", "12/21/22", "John", 2);
-        Message test3 = new Message("This is another test rec", "12/11/22", "John", 2);
-        Message test4 = new Message("this is another test send", "20/11/22", "Bob", 1);
-        Message test5 = new Message("This is a test send", "10/15/11", "Bob", 1);
-        Message test6 = new Message("This is a test rec", "12/21/22", "John", 2);
-        Message test7 = new Message("This is another test rec", "12/11/22", "John", 2);
-        Message test8 = new Message("this is another test send", "20/11/22", "Bob", 1);
-        Message test9 = new Message("This is a test rec", "12/21/22", "John", 2);
-        Message test10 = new Message("This is another test rec", "12/11/22", "John", 2);
-        Message test11 = new Message("this is another test send", "20/11/22", "Bob", 1);
-        Message test12 = new Message("this is another test send", "20/11/22", "Bob", 1);
-        Message test13 = new Message("This is a test rec", "12/21/22", "John", 2);
-        Message test14 = new Message("This is another test rec", "12/11/22", "John", 2);
-        Message test15 = new Message("this is another test send", "20/11/22", "Bob", 1);
-        messageList.add(test1);
-        messageList.add(test2);
-        messageList.add(test3);
-        messageList.add(test4);
-        messageList.add(test5);
-        messageList.add(test6);
-        messageList.add(test7);
-        messageList.add(test8);
-        messageList.add(test9);
-        messageList.add(test10);
-        messageList.add(test11);
-        messageList.add(test12);
-        messageList.add(test13);
-        messageList.add(test14);
-        messageList.add(test15);
-        */
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mAuth = FirebaseAuth.getInstance();
+        DatabaseReference mDB = mDatabase.child("posts");
+
+
+        userEmail = getIntent().getStringExtra("user");
 
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String texting = edtMessage.getText().toString();
 
+                Message message = new Message(texting, userEmail, System.currentTimeMillis(), 0);
 
+//                String key = mDatabase.child("posts").push().getKey();
+//                Map<String, Object> postValues = message.toMap();
+//
+//                Map<String, Object> childUpdates = new HashMap<>();
+//                childUpdates.put("/posts/" + key, postValues);
+//
+//                mDatabase.updateChildren(childUpdates);
+
+                String key = myRef.push().getKey();
+
+                myRef.child(key).setValue(message);
+                edtMessage.setText("");
+
+                UpdateData();
             }
         });
 
+        recyclerView = findViewById(R.id.recyclerview_message_list);
+        recyclerView.setLayoutManager(new LinearLayoutManager(ChatPageActivity.this));
+        UpdateData();
+    }
 
 
-        ChatPageAdapter adapter;
+    public void setRecycler(ArrayList<Message> messageList) {
+        adapter = new ChatPageAdapter(ChatPageActivity.this, messageList);
+        //adapter.setClickListener(this);
+        recyclerView.setAdapter(adapter);
+    }
 
-            // set up the RecyclerView
-            RecyclerView recyclerView = findViewById(R.id.recyclerview_message_list);
-            recyclerView.setLayoutManager(new LinearLayoutManager(this));
-            adapter = new ChatPageAdapter(this, messageList);
-            //adapter.setClickListener(this);
-            recyclerView.setAdapter(adapter);
+        public void UpdateData() {
+            myRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                   messageList.clear();
+                    // StringBuffer stringbuffer = new StringBuffer();
+                    for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
+
+//                            Message message = dataSnapshot1.getValue(Message.class);
+                        String msg = (String) dataSnapshot1.child("message").getValue();
+//                            Toast.makeText(ChatPageActivity.this, name, Toast.LENGTH_LONG).show();
+                        String name = (String) dataSnapshot1.child("name").getValue();
+                        long time = (long) dataSnapshot1.child("time").getValue();
+                        int uid = dataSnapshot1.child("userId").getValue(Integer.class);
+                        Message message = new Message(msg, name, time, uid);
+                        messageList.add(message);
+                        Collections.sort(messageList);
+                        setRecycler(messageList);
+
+                    }
+
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError error) {
+                    // Failed to read value
+                    //  Log.w(TAG, "Failed to read value.", error.toException());
+                }
+            });
+
+
+
+        }
+
+
         }
 
 //        @Override
@@ -90,4 +142,3 @@ public class ChatPageActivity extends Activity {
 //            Toast.makeText(this, "You clicked " + adapter.getItem(position) + " on row number " + position, Toast.LENGTH_SHORT).show();
 //
 //    }
-}

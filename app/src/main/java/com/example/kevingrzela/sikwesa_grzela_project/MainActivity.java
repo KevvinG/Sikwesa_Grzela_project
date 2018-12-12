@@ -57,9 +57,10 @@ public class MainActivity extends Activity {
 
     }//onCreate
 
+
     private void signInUser() {
 
-        String email = edtUserName.getText().toString();
+        final String email = edtUserName.getText().toString();
         String password = edtPassword.getText().toString();
 
         mAuth.signInWithEmailAndPassword(email, password)
@@ -68,6 +69,7 @@ public class MainActivity extends Activity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             Intent intent = new Intent(getApplicationContext(), ChatPageActivity.class);
+                            intent.putExtra("user",email);
                             startActivity(intent);
                         } else {
                             Toast.makeText(MainActivity.this, "Sign in failed", Toast.LENGTH_SHORT).show();

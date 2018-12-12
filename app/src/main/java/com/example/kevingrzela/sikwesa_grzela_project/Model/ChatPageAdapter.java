@@ -11,6 +11,8 @@ import com.example.kevingrzela.sikwesa_grzela_project.R;
 
 import org.w3c.dom.Text;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class ChatPageAdapter extends RecyclerView.Adapter<ChatPageAdapter.ViewHolder> {
@@ -50,18 +52,20 @@ public class ChatPageAdapter extends RecyclerView.Adapter<ChatPageAdapter.ViewHo
 
 
         String animal = mData.get(position).getMessage();
-        String time = mData.get(position).getTime();
+        long time = mData.get(position).getTime();
+        SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy HH:mm");
+        Date resultdate = new Date(time);
         holder.myTextView.setText(animal);
-        holder.myTextView2.setText(time);
+        holder.myTextView2.setText(sdf.format(resultdate));
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (mData.get(position).getUserId() == 1) {
+        //if (mData.get(position).getUserId() == 1) {
             return MESSAGE_SENT;
-        } else {
-            return MESSAGE_RECEIVED;
-        }
+        //} else {
+      //      return MESSAGE_RECEIVED;
+      //  }
     }
 
     // total number of rows

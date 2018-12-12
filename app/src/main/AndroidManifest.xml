@@ -12,12 +12,21 @@
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <meta-data
+                android:name="firebase_messaging_auto_init_enabled"
+                android:value="false" />
+            <meta-data
+                android:name="firebase_analytics_collection_enabled"
+                android:value="false" />
         </activity>
         <activity android:name=".SignUp" />
         <activity android:name=".ChatPageActivity" />
         <activity android:name=".ChatListActivity" />
+
     </application>
 
 </manifest>
