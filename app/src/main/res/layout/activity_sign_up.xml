@@ -19,16 +19,6 @@
         android:textStyle="bold" />
 
     <EditText
-        android:id="@+id/edt_create_username"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:ems="10"
-        android:inputType="textPersonName"
-        android:hint="Username"
-        android:layout_margin="8dp"/>
-
-    <EditText
         android:id="@+id/edt_create_email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

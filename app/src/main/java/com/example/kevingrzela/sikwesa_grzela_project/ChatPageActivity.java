@@ -1,6 +1,7 @@
 package com.example.kevingrzela.sikwesa_grzela_project;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -8,6 +9,8 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -63,7 +66,6 @@ public class ChatPageActivity extends Activity {
         database = FirebaseDatabase.getInstance();
         Conversation convo = getIntent().getParcelableExtra("conversation");
         userName = getIntent().getStringExtra("user");
-//        user2 = convo.getRecipient();
         user2 = getIntent().getStringExtra("user2");
         myRefUser1 = database.getReference("message/"+userName);
         myRefUser2 = database.getReference("message/"+user2);
@@ -91,13 +93,9 @@ public class ChatPageActivity extends Activity {
             }
         });//Adding a new message
 
-        recyclerView.addItemDecoration(new DividerItemDecoration(
-                recyclerView.getContext(),
-                DividerItemDecoration.VERTICAL
-        ));
 
         recyclerView = findViewById(R.id.recyclerview_message_list);
-        RecyclerView.LayoutManager manage = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        recyclerView.setLayoutManager(new LinearLayoutManager(ChatPageActivity.this));
         UpdateData(userName, user2);
     }
 
@@ -106,6 +104,32 @@ public class ChatPageActivity extends Activity {
         adapter = new ChatPageAdapter(ChatPageActivity.this, messageList);
         //adapter.setClickListener(this);
         recyclerView.setAdapter(adapter);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menuitems, menu);
+        menu.findItem(R.id.action_new_chat).setVisible(false);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        int id = item.getItemId();
+
+        if (id==R.id.action_log_out) {
+            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+            startActivity(intent);
+        } else if (id==R.id.action_back) {
+            Intent intent = new Intent(getApplicationContext(), ChatListActivity.class);
+            intent.putExtra("user", userName);
+            startActivity(intent);
+        } else if (id==R.id.action_delete) {
+            DeleteData(userName, user2);
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
         public void UpdateData(final String user1, final String user2) {
@@ -144,6 +168,43 @@ public class ChatPageActivity extends Activity {
             });
 
         }
+
+    public void DeleteData(final String user1, final String user2) {
+        myRefUser1.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                messageList.clear();
+                // StringBuffer stringbuffer = new StringBuffer();
+                for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
+
+                    String msg = (String) dataSnapshot1.child("message").getValue();
+                    long time = (long) dataSnapshot1.child("time").getValue();
+                    String sender = (String) dataSnapshot1.child("sender").getValue();
+                    String receiver = (String) dataSnapshot1.child("receiver").getValue();
+                    if ((user1.equalsIgnoreCase(sender) && user2.equalsIgnoreCase(receiver))) {
+                        dataSnapshot1.getRef().removeValue();
+                    } else if ((user1.equalsIgnoreCase(receiver)) && (user2.equalsIgnoreCase(sender))) {
+                        dataSnapshot1.getRef().removeValue();
+
+                    }
+                    Intent intent = new Intent(getApplicationContext(), ChatListActivity.class);
+                    intent.putExtra("user", userName);
+                    startActivity(intent);
+
+                }//forLoop
+
+
+            }//onDataChange
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                // Failed to read value
+                //  Log.w(TAG, "Failed to read value.", error.toException());
+            }//onCancelled
+        });
+    }
+
+
 
 
         }

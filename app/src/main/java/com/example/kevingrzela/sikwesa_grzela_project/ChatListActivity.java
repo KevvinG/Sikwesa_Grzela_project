@@ -4,12 +4,14 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.kevingrzela.sikwesa_grzela_project.Model.ChatListAdapter;
@@ -57,10 +59,18 @@ public class ChatListActivity extends Activity {
         database = FirebaseDatabase.getInstance();
 
         recyclerView = findViewById(R.id.recyclerview_chat_list);
-        recyclerView.setLayoutManager(new LinearLayoutManager(ChatListActivity.this));
+
+        recyclerView.addItemDecoration(new DividerItemDecoration(
+                recyclerView.getContext(),
+                DividerItemDecoration.VERTICAL
+        ));
+        RecyclerView.LayoutManager manage = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        recyclerView.setLayoutManager(manage);
 
 
         user = getIntent().getStringExtra("user");
+        TextView txtChatList = findViewById(R.id.txt_chat_list);
+        txtChatList.setText(user + "'s Chats");
 //        Toast.makeText(ChatListActivity.this, user, Toast.LENGTH_SHORT).show();
 //        getUserInfo(user);
         myRef = database.getReference("message/" + user);
@@ -75,6 +85,8 @@ public class ChatListActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menuitems, menu);
+        menu.findItem(R.id.action_back).setVisible(false);
+        menu.findItem(R.id.action_delete).setVisible(false);
         return true;
     }
 
@@ -86,6 +98,9 @@ public class ChatListActivity extends Activity {
         if (id==R.id.action_new_chat) {
             Intent intent = new Intent(getApplicationContext(), NewChatActivity.class);
             intent.putExtra("user", user);
+            startActivity(intent);
+        } else if (id==R.id.action_log_out) {
+            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
             startActivity(intent);
         }
 
@@ -101,7 +116,6 @@ public class ChatListActivity extends Activity {
         recyclerView.setAdapter(new ChatListAdapter(ChatListActivity.this, convoList, new ChatListAdapter.ItemClickListener() {
             @Override
             public void onItemClick(Conversation convo) {
-//                Toast.makeText(getApplicationContext(), convo.getSender(), Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(getApplicationContext(), ChatPageActivity.class);
                 intent.putExtra("conversation", convo);
                 intent.putExtra("user2",convo.getRecipient());
@@ -121,7 +135,7 @@ public class ChatListActivity extends Activity {
                 for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
                     String receiver = (String) dataSnapshot1.child("receiver").getValue();
                     String sender = (String) dataSnapshot1.child("sender").getValue();
-                    String msgLast = "Test";
+                    String msgLast = "";
 
                     if(receiver.equalsIgnoreCase(user)) {
                         String temp = receiver;
@@ -140,20 +154,7 @@ public class ChatListActivity extends Activity {
                             people.add(sender);
                         }
                     }
-
-//                    String name = (String) dataSnapshot1.child("name").getValue();
-//                    long time = (long) dataSnapshot1.child("time").getValue();
-//                    int uid = dataSnapshot1.child("userId").getValue(Integer.class);
-//                    Message message = new Message(msg, name, time, uid);
-//                    convoList.add(convo);
-//                    Collections.sort(convoList);
-
-
-//                    setRecycler(convoList);
-
                 }
-
-
             }
 
             @Override

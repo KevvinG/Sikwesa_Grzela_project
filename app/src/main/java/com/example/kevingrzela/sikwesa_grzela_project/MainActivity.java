@@ -72,26 +72,32 @@ public class MainActivity extends Activity {
 
 
     private void signInUser() {
-
         final String email = edtUserName.getText().toString();
+        if(email.isEmpty())
+            edtUserName.setError("Email is required field");
         String password = edtPassword.getText().toString();
-
-        mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            getUserInfo(email);
-                            String[] testing = email.split("@");
-                            String userName = testing[0];
-                            Intent intent = new Intent(getApplicationContext(), ChatListActivity.class);
-                            intent.putExtra("user",userName);
-                            startActivity(intent);
-                        } else {
-                            Toast.makeText(MainActivity.this, "Sign in failed", Toast.LENGTH_SHORT).show();
+        if(password.isEmpty())
+            edtPassword.setError("Password is required");
+        if(!email.isEmpty() && !password.isEmpty()) {
+            mAuth.signInWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if (task.isSuccessful()) {
+                                getUserInfo(email);
+                                String[] testing = email.split("@");
+                                String userName = testing[0];
+                                Intent intent = new Intent(getApplicationContext(), ChatListActivity.class);
+                                intent.putExtra("user", userName);
+                                startActivity(intent);
+                            } else {
+                                Toast.makeText(MainActivity.this, "Sign in failed", Toast.LENGTH_SHORT).show();
+                                edtPassword.setText("");
+                                edtUserName.setText("");
+                            }
                         }
-                    }
-                });
+                    });
+        }
 
     }
 

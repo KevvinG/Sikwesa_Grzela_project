@@ -40,23 +40,33 @@ public class SignUp extends Activity {
 
         Button btnCreate = findViewById(R.id.btn_create_account);
         Button btnCancel = findViewById(R.id.btn_cancel);
-        final EditText userNameCreate = findViewById(R.id.edt_create_username);
         final EditText emailCreate = findViewById(R.id.edt_create_email);
-        EditText passwordCreate = findViewById(R.id.edt_create_password);
+        final EditText passwordCreate = findViewById(R.id.edt_create_password);
         final EditText passwordConfirm = findViewById(R.id.edt_confirm_password);
 
         btnCreate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String email = emailCreate.getText().toString();
-                String password = passwordConfirm.getText().toString();
-                String[] names = email.split("@");
-                String userName = names[0];
-                //Implement error checking
-                User user = new User(userName,password,email);
-                //Add the user to db
-                addUser(user);
-                //Logic to pass username back to login screen for QOL
+                String email=emailCreate.getText().toString();   //takes name input and checksif textbox is empty
+                if(email.isEmpty())
+                    emailCreate.setError("Email is required field");
+                String passwordC=passwordCreate.getText().toString();  //takes Id input and checks if textbox is empty
+                if(passwordC.isEmpty())
+                    passwordCreate.setError("Password is a required field");
+                String passwordConf=passwordConfirm.getText().toString();
+                if(passwordConf.isEmpty())
+                    passwordConfirm.setError("Must confirm password");
+                if((!email.isEmpty() && !passwordC.isEmpty() && passwordC.equals(passwordConf))) {
+                    String[] names = email.split("@");
+                    String userName = names[0];
+
+
+                    User user = new User(userName,passwordConf,email);
+                    addUser(user);
+                } else {
+                    passwordCreate.setError("Passwords must match");
+                    passwordConfirm.setError("Passwords must match");
+                }
 
             }
         });
@@ -69,6 +79,7 @@ public class SignUp extends Activity {
             }
         });
     }
+
 
     private void addUser(final User u) {
         final User userTest = u;
