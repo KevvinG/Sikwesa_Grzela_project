@@ -26,7 +26,7 @@
         <activity android:name=".SignUp" />
         <activity android:name=".ChatPageActivity" />
         <activity android:name=".ChatListActivity" />
-
+        <activity android:name=".NewChatActivity"></activity>
     </application>
 
 </manifest>

@@ -12,16 +12,18 @@ import com.example.kevingrzela.sikwesa_grzela_project.R;
 import java.util.List;
 
 public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHolder> {
-    private List<Message> mData;
+    private List<Conversation> mData;
     private LayoutInflater mInflater;
     private ItemClickListener mClickListener;
+    private final ItemClickListener listener;
 
 
 
     // data is passed into the constructor
-    public ChatListAdapter(Context context, List<Message> data) {
+    public ChatListAdapter(Context context, List<Conversation> data, ItemClickListener listener) {
         this.mInflater = LayoutInflater.from(context);
         this.mData = data;
+        this.listener = listener;
     }
 
     // inflates the row layout from xml when needed
@@ -38,11 +40,14 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
         final int itemType = getItemViewType(position);
 
 
-//        String animal = mData.get(position).getMessage();
-//        String time = mData.get(position).getTime();
-//        holder.myTextView.setText(animal);
-//        holder.myTextView2.setText(time);
+        String receiver = mData.get(position).getRecipient();
+        String sender = mData.get(position).getSender();
+        holder.myTextView.setText(receiver);
+        holder.myTextView2.setText(sender);
+
+        holder.bind(mData.get(position), listener);
     }
+
 
 
     // total number of rows
@@ -53,7 +58,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
 
 
     // stores and recycles views as they are scrolled off screen
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class ViewHolder extends RecyclerView.ViewHolder {
         TextView myTextView;
         TextView myTextView2;
 
@@ -63,12 +68,20 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
             myTextView2 = itemView.findViewById(R.id.txt_chat_preview);
 //            myTextView = itemView.findViewById(R.id.text_message_body);
 //            myTextView2 = itemView.findViewById(R.id.text_message_time);
-            itemView.setOnClickListener(this);
+//            itemView.setOnClickListener(this);
         }
 
-        @Override
-        public void onClick(View view) {
-            if (mClickListener != null) mClickListener.onItemClick(view, getAdapterPosition());
+//        @Override
+//        public void onClick(View view) {
+//            if (mClickListener != null) mClickListener.onItemClick(view, getAdapterPosition());
+//        }
+
+        public void bind(final Conversation convo, final ItemClickListener listener) {
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) {
+                    listener.onItemClick(convo);
+                }
+            });
         }
     }
 
@@ -84,6 +97,6 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
 
     // parent activity will implement this method to respond to click events
     public interface ItemClickListener {
-        void onItemClick(View view, int position);
+        void onItemClick(Conversation convo);
     }
 }

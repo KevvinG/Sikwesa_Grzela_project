@@ -7,22 +7,24 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Message implements Comparable<Message> {
-        String message, name;
+        String message;
         long time;
+        String sender, receiver;
         int userId;
 
-        public Message(String m, String n, long t, int u) {
+        public Message(String m, long t, String sender, String receiver, int userId) {
             message = m;
             time = t;
-            name = n;
-            userId = u;
+            this.sender = sender;
+            this.receiver = receiver;
+            this.userId = userId;
         }
 
          public Map<String, Object> toMap() {
              HashMap<String, Object> result = new HashMap<>();
-             result.put("uid", userId);
+             result.put("sender", sender);
+             result.put("receiver", receiver);
              result.put("message", message);
-             result.put("name", name);
              result.put("time", time);
 
              return result;
@@ -40,25 +42,33 @@ public class Message implements Comparable<Message> {
         this.message = message;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public void setTime(long time) {
         this.time = time;
+    }
+
+    public int getUserId() {
+        return userId;
     }
 
     public void setUserId(int userId) {
         this.userId = userId;
     }
 
-    public String getName() {
-            return name;
-        }
+    public String getSender() {
+        return sender;
+    }
 
-        public int getUserId() {
-            return userId;
-        }
+    public void setSender(String sender) {
+        this.sender = sender;
+    }
+
+    public String getReceiver() {
+        return receiver;
+    }
+
+    public void setReceiver(String receiver) {
+        this.receiver = receiver;
+    }
 
     @Override
     public int compareTo(@NonNull Message o) {

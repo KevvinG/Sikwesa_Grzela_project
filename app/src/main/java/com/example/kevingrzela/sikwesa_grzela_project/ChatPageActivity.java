@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -14,6 +15,7 @@ import android.widget.Toast;
 
 import com.example.kevingrzela.sikwesa_grzela_project.Model.ChatListAdapter;
 import com.example.kevingrzela.sikwesa_grzela_project.Model.ChatPageAdapter;
+import com.example.kevingrzela.sikwesa_grzela_project.Model.Conversation;
 import com.example.kevingrzela.sikwesa_grzela_project.Model.Message;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
@@ -36,14 +38,19 @@ public class ChatPageActivity extends Activity {
 
     private DatabaseReference mDatabase;
     private FirebaseAuth mAuth;
-    DatabaseReference myRef;
+    DatabaseReference myRefUser1;
+    DatabaseReference myRefUser2;
     ArrayList<Message> messageList;
     FirebaseDatabase database;
     ChatPageAdapter adapter;
     RecyclerView recyclerView;
     Button btnSend;
     EditText edtMessage;
-    String userEmail;
+    String userName;
+    String user2;
+
+    private static final int SENT = 1;
+    private static final int RECEIVED = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,42 +61,44 @@ public class ChatPageActivity extends Activity {
         edtMessage = findViewById(R.id.edittext_chatbox);
         messageList = new ArrayList<Message>();
         database = FirebaseDatabase.getInstance();
-        myRef = database.getReference("message");
-
+        Conversation convo = getIntent().getParcelableExtra("conversation");
+        userName = getIntent().getStringExtra("user");
+//        user2 = convo.getRecipient();
+        user2 = getIntent().getStringExtra("user2");
+        myRefUser1 = database.getReference("message/"+userName);
+        myRefUser2 = database.getReference("message/"+user2);
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
-        DatabaseReference mDB = mDatabase.child("posts");
+
+//        DatabaseReference mDB = mDatabase.child("posts");
 
 
-        userEmail = getIntent().getStringExtra("user");
 
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String texting = edtMessage.getText().toString();
 
-                Message message = new Message(texting, userEmail, System.currentTimeMillis(), 0);
+                Message message = new Message(texting, System.currentTimeMillis(), userName, user2, 0);
 
-//                String key = mDatabase.child("posts").push().getKey();
-//                Map<String, Object> postValues = message.toMap();
-//
-//                Map<String, Object> childUpdates = new HashMap<>();
-//                childUpdates.put("/posts/" + key, postValues);
-//
-//                mDatabase.updateChildren(childUpdates);
-
-                String key = myRef.push().getKey();
-
-                myRef.child(key).setValue(message);
+                String key = myRefUser1.push().getKey();
+                String key2 = myRefUser2.push().getKey();
+                myRefUser1.child(key).setValue(message);
+                myRefUser2.child(key2).setValue(message);
                 edtMessage.setText("");
 
-                UpdateData();
+                UpdateData(userName, user2);
             }
-        });
+        });//Adding a new message
+
+        recyclerView.addItemDecoration(new DividerItemDecoration(
+                recyclerView.getContext(),
+                DividerItemDecoration.VERTICAL
+        ));
 
         recyclerView = findViewById(R.id.recyclerview_message_list);
-        recyclerView.setLayoutManager(new LinearLayoutManager(ChatPageActivity.this));
-        UpdateData();
+        RecyclerView.LayoutManager manage = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        UpdateData(userName, user2);
     }
 
 
@@ -99,38 +108,40 @@ public class ChatPageActivity extends Activity {
         recyclerView.setAdapter(adapter);
     }
 
-        public void UpdateData() {
-            myRef.addValueEventListener(new ValueEventListener() {
+        public void UpdateData(final String user1, final String user2) {
+            myRefUser1.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                    messageList.clear();
                     // StringBuffer stringbuffer = new StringBuffer();
                     for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
 
-//                            Message message = dataSnapshot1.getValue(Message.class);
                         String msg = (String) dataSnapshot1.child("message").getValue();
-//                            Toast.makeText(ChatPageActivity.this, name, Toast.LENGTH_LONG).show();
-                        String name = (String) dataSnapshot1.child("name").getValue();
                         long time = (long) dataSnapshot1.child("time").getValue();
-                        int uid = dataSnapshot1.child("userId").getValue(Integer.class);
-                        Message message = new Message(msg, name, time, uid);
-                        messageList.add(message);
-                        Collections.sort(messageList);
+                        String sender = (String) dataSnapshot1.child("sender").getValue();
+                        String receiver = (String) dataSnapshot1.child("receiver").getValue();
+                        if ((user1.equalsIgnoreCase(sender) && user2.equalsIgnoreCase(receiver))) {
+                            Message message = new Message(msg, time, sender, receiver, SENT);
+                            messageList.add(message);
+                            Collections.sort(messageList);
+                        } else if ((user1.equalsIgnoreCase(receiver)) && (user2.equalsIgnoreCase(sender))) {
+                            Message message = new Message(msg, time, sender, receiver, RECEIVED);
+                            messageList.add(message);
+                            Collections.sort(messageList);
+                        }
                         setRecycler(messageList);
 
-                    }
+                    }//forLoop
 
 
-                }
+                }//onDataChange
 
                 @Override
                 public void onCancelled(DatabaseError error) {
                     // Failed to read value
                     //  Log.w(TAG, "Failed to read value.", error.toException());
-                }
+                }//onCancelled
             });
-
-
 
         }
 
@@ -140,5 +151,29 @@ public class ChatPageActivity extends Activity {
 //        @Override
 //        public void onItemClick(View view, int position) {
 //            Toast.makeText(this, "You clicked " + adapter.getItem(position) + " on row number " + position, Toast.LENGTH_SHORT).show();
+//
+//    }
+
+//    private void getUserInfo(final String user) {
+//
+//        myRefUser1 = database.getReference("users");
+//
+//        myRefUser1.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                for (DataSnapshot dataSnapshot2 : dataSnapshot.getChildren()) {
+//                    String email = (String) dataSnapshot2.child("email").getValue();
+//                    if (email.equalsIgnoreCase(user)) {
+//                        String usern = (String) dataSnapshot2.child("userName").getValue();
+//                        userName=usern;
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError) {
+//
+//            }
+//        });
 //
 //    }

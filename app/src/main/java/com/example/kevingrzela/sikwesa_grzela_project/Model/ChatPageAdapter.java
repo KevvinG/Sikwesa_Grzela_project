@@ -50,22 +50,23 @@ public class ChatPageAdapter extends RecyclerView.Adapter<ChatPageAdapter.ViewHo
     public void onBindViewHolder(ViewHolder holder, int position) {
         final int itemType = getItemViewType(position);
 
-
-        String animal = mData.get(position).getMessage();
+        String name = mData.get(position).getSender();
+        String message = mData.get(position).getMessage();
         long time = mData.get(position).getTime();
         SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy HH:mm");
         Date resultdate = new Date(time);
-        holder.myTextView.setText(animal);
-        holder.myTextView2.setText(sdf.format(resultdate));
+        holder.messageView.setText(message);
+        holder.timeView.setText(sdf.format(resultdate));
+        holder.nameView.setText(name);
     }
 
     @Override
     public int getItemViewType(int position) {
-        //if (mData.get(position).getUserId() == 1) {
+        if (mData.get(position).getUserId() == 1) {
             return MESSAGE_SENT;
-        //} else {
-      //      return MESSAGE_RECEIVED;
-      //  }
+        } else {
+            return MESSAGE_RECEIVED;
+        }
     }
 
     // total number of rows
@@ -77,13 +78,15 @@ public class ChatPageAdapter extends RecyclerView.Adapter<ChatPageAdapter.ViewHo
 
     // stores and recycles views as they are scrolled off screen
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        TextView myTextView;
-        TextView myTextView2;
+        TextView messageView;
+        TextView timeView;
+        TextView nameView;
 
         ViewHolder(View itemView) {
             super(itemView);
-            myTextView = itemView.findViewById(R.id.text_message_body);
-            myTextView2 = itemView.findViewById(R.id.text_message_time);
+            messageView = itemView.findViewById(R.id.text_message_body);
+            timeView = itemView.findViewById(R.id.text_message_time);
+            nameView = itemView.findViewById(R.id.text_message_name);
             itemView.setOnClickListener(this);
         }
 

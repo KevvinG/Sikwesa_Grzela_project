@@ -24,7 +24,8 @@ public class SignUp extends Activity {
     private DatabaseReference mDatabase;
     private FirebaseAuth mAuth;
 
-
+    DatabaseReference myRef;
+    FirebaseDatabase database;
 
 
     @Override
@@ -34,7 +35,8 @@ public class SignUp extends Activity {
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
-
+        database = FirebaseDatabase.getInstance();
+        myRef = database.getReference("users");
 
         Button btnCreate = findViewById(R.id.btn_create_account);
         Button btnCancel = findViewById(R.id.btn_cancel);
@@ -48,17 +50,14 @@ public class SignUp extends Activity {
             public void onClick(View v) {
                 String email = emailCreate.getText().toString();
                 String password = passwordConfirm.getText().toString();
-                String userName = userNameCreate.getText().toString();
+                String[] names = email.split("@");
+                String userName = names[0];
                 //Implement error checking
                 User user = new User(userName,password,email);
                 //Add the user to db
                 addUser(user);
                 //Logic to pass username back to login screen for QOL
-                Intent data = new Intent();
-                data.putExtra("message", email);
-                addUser(user);
-                setResult(RESULT_OK, data);
-                finish();
+
             }
         });
 
@@ -80,7 +79,16 @@ public class SignUp extends Activity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            mDatabase.child("users").child(userTest.getUserName()).setValue(userTest);
+//                            mDatabase.child("users").child(userTest.getUserName()).setValue(userTest);
+                            String key = myRef.push().getKey();
+                            myRef.child(key).setValue(userTest);
+                            Intent data = new Intent();
+                            data.putExtra("email", u.getEmail());
+                            data.putExtra("name", u.getUserName());
+                            addUser(u);
+                            setResult(RESULT_OK, data);
+                            finish();
+
                         } else {
                             Toast.makeText(SignUp.this, "Sign Up Failed",
                                     Toast.LENGTH_SHORT).show();
